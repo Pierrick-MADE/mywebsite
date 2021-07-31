@@ -18,7 +18,7 @@
         map.addControl(L.mapquest.control());
         L.control.scale().addTo(map);
 
-        var url = "http://www.mapquestapi.com/datamanager/v2/get-table-data?key="+ bonjour + "&inFormat=json";
+        var url = "https://www.mapquestapi.com/datamanager/v2/get-table-data?key="+ bonjour + "&inFormat=json";
 
         var xhr = new XMLHttpRequest();
         xhr.open("POST", url);
