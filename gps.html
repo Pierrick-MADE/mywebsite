@@ -1,0 +1,76 @@
+<html>
+  <head>
+    <title>Pierrick GPS</title>
+
+    <script src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <script type="text/javascript">
+      window.onload = function() {
+        var bonjour = 'ti51G7kD1nSuG3PpE0VQJHl4MoV2O3Lw';
+        L.mapquest.key = bonjour;
+        var map = L.mapquest.map('map', {
+          center: [47., 2.],
+          layers: L.mapquest.tileLayer('map'),
+          zoom: 6.4
+        });
+        map.addControl(L.mapquest.control());
+        L.control.scale().addTo(map);
+
+        var url = "http://www.mapquestapi.com/datamanager/v2/get-table-data?key="+ bonjour + "&inFormat=json";
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url);
+
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                var locations = JSON.parse(xhr.responseText).data.rows;
+                console.log(locations);
+
+                // draw path
+                var line_locations = [];
+                locations.forEach(element => {
+                    line_locations.push([element[3], element[4]])
+                });
+                var polyline = L.polyline(line_locations, {color: 'red'}).addTo(map);
+                map.fitBounds(polyline.getBounds());
+
+                // current position
+                var ici = locations[locations.length - 1]
+
+                var ici_marker = L.marker([ici[3], ici[4]], {
+                    icon: L.mapquest.icons.flag({
+                        primaryColor: '#000090',
+                        secondaryColor: '#900090',
+                        shadow: true,
+                        size: 'md',
+                        symbol: 'ici'
+                    })
+                })
+
+                L.DomEvent.on(ici_marker,'click',function(){
+                    var zoomlvl = map.getZoom() + 2;
+                    if (zoomlvl < 10)
+                        zoomlvl = 10
+                    if (zoomlvl >= 18)
+                        zoomlvl = 10
+                    map.flyTo(ici_marker.getLatLng(), zoomlvl)
+                });
+
+                ici_marker.addTo(map);
+            };
+        }
+        var data = JSON.stringify({"tableName":"mqap." + bonjour + "_pierrick_travel"});
+
+        xhr.send(data);
+    };
+    </script>
+  </head>
+
+  <body style="border: 0; margin: 0;">
+    <div id="map" style="width: 100%; height: 100%;"></div>
+  </body>
+</html>
