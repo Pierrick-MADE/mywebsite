@@ -32,9 +32,25 @@
 
                 // draw path
                 var line_locations = [];
-                locations.forEach(element => {
-                    line_locations.push([element[3], element[4]])
-                });
+
+                for (let i = 0; i < locations.length; i++) {
+
+                    var lat_lon = [locations[i][3], locations[i][4]];
+
+                    // add marker and time popup on hover
+                    if (i < locations.length - 1) {
+                        var marker = L.marker(lat_lon).addTo(map);
+                        marker.bindPopup(locations[i][5]);
+                        marker.on('mouseover', function (e) {
+                            this.openPopup();
+                        });
+                        marker.on('mouseout', function (e) {
+                            this.closePopup();
+                        });
+                    }
+
+                    line_locations.push(lat_lon)
+                };
                 var polyline = L.polyline(line_locations, {color: 'red'}).addTo(map);
                 map.fitBounds(polyline.getBounds());
 
@@ -58,6 +74,13 @@
                     if (zoomlvl >= 18)
                         zoomlvl = 10
                     map.flyTo(ici_marker.getLatLng(), zoomlvl)
+                });
+                ici_marker.bindPopup(ici[5]);
+                ici_marker.on('mouseover', function (e) {
+                    this.openPopup();
+                });
+                ici_marker.on('mouseout', function (e) {
+                    this.closePopup();
                 });
 
                 ici_marker.addTo(map);
